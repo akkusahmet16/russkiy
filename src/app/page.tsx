@@ -43,6 +43,13 @@ interface DashboardStats {
     dailyMinutes: number;
   };
   aiReady: boolean;
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+    hasApiKey: boolean;
+    maskedKey: string;
+  } | null;
 }
 
 export default function HomePage() {
@@ -51,8 +58,16 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    api<DashboardStats>("/api/stats").then(setStats).catch(console.error);
-  }, []);
+    api<DashboardStats>("/api/stats")
+      .then((res) => {
+        if (!res.user) {
+          router.replace("/login");
+          return;
+        }
+        setStats(res);
+      })
+      .catch(console.error);
+  }, [router]);
 
   async function startScenario(scenarioId: string) {
     setStartingScenario(scenarioId);

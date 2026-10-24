@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma, getProfile } from "./db";
+import { prisma, getProfile, syncUserProgressBackup } from "./db";
 import { allLessons } from "@/content/curriculum";
 import type { LevelId } from "@/content/types";
 import { getDailyQuests, listMistakes, getOnboardingState } from "./memory";
@@ -33,10 +33,13 @@ export async function addXp(amount: number) {
     create: { date: t, xp: amount },
   });
 
-  return prisma.profile.update({
+  const updated = await prisma.profile.update({
     where: { id: 1 },
     data: { xp: { increment: amount }, streak, lastActiveDate: t },
   });
+
+  await syncUserProgressBackup();
+  return updated;
 }
 
 /** Şu anki seviye = tamamlanmamış ilk dersin seviyesi */

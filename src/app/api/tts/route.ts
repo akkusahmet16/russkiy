@@ -88,6 +88,7 @@ function normalizeToCleanWav(rawBuf: Buffer): Buffer {
  */
 async function synthesizeWithLiveNativeAudio(model: string, cleanText: string, profile: VoiceProfile): Promise<Buffer> {
   const pcmChunks: Buffer[] = [];
+  const client = await ai();
 
   await new Promise<void>((resolve, reject) => {
     let settled = false;
@@ -108,8 +109,8 @@ async function synthesizeWithLiveNativeAudio(model: string, cleanText: string, p
       finish(new Error("Live Native Audio zaman aşımı"));
     }, 18000);
 
-    ai()
-      .live.connect({
+    client.live
+      .connect({
         model,
         config: {
           responseModalities: [Modality.AUDIO],
@@ -189,7 +190,7 @@ export async function POST(req: Request) {
       voice?: string;
     };
     if (!text?.trim()) return new Response("text gerekli", { status: 400 });
-    if (!hasAiKey()) return new Response("AI anahtarı yok", { status: 503 });
+    if (!(await hasAiKey())) return new Response("AI anahtarı yok", { status: 503 });
 
     const profile = resolveVoiceProfile({ scenarioId, voiceName: voice, text });
 
@@ -228,9 +229,10 @@ export async function POST(req: Request) {
 
     // 2. Yedek: Standart Gemini TTS modelleri (eğer Live WebSocket erişilemezse)
     if (!rawAudio) {
+      const client = await ai();
       for (const model of FALLBACK_TTS_MODELS) {
         try {
-          const res = await ai().models.generateContent({
+          const res = await client.models.generateContent({
             model,
             contents: [{ role: "user", parts: [{ text: clean }] }],
             config: {

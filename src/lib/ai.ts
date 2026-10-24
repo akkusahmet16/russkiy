@@ -1,28 +1,37 @@
 import "server-only";
 import { GoogleGenAI } from "@google/genai";
 import type { LevelId } from "@/content/types";
+import { getCurrentUser } from "./auth";
 
-let client: GoogleGenAI | null = null;
-let cachedApiKey: string | undefined;
+const clientPool = new Map<string, GoogleGenAI>();
 
 export class AiNotConfiguredError extends Error {
   constructor() {
-    super("GEMINI_API_KEY tanımlı değil. Proje kökündeki .env dosyasına anahtarını ekle.");
+    super(
+      "Kişisel Gemini API anahtarınız tanımlı değil. Sol menüdeki 'Hesap & API Anahtarı' bölümünden kendi ücretsiz Gemini anahtarınızı ekleyin.",
+    );
   }
 }
 
-export function hasAiKey() {
-  return Boolean(process.env.GEMINI_API_KEY);
+export async function getActiveApiKey(): Promise<string> {
+  const user = await getCurrentUser();
+  return user?.geminiApiKey?.trim() || "";
 }
 
-export function ai() {
-  const key = process.env.GEMINI_API_KEY;
+export async function hasAiKey(): Promise<boolean> {
+  const key = await getActiveApiKey();
+  return Boolean(key);
+}
+
+export async function ai(): Promise<GoogleGenAI> {
+  const key = await getActiveApiKey();
   if (!key) throw new AiNotConfiguredError();
-  if (!client || cachedApiKey !== key) {
-    client = new GoogleGenAI({ apiKey: key });
-    cachedApiKey = key;
+  let instance = clientPool.get(key);
+  if (!instance) {
+    instance = new GoogleGenAI({ apiKey: key });
+    clientPool.set(key, instance);
   }
-  return client;
+  return instance;
 }
 
 const DEPRECATED_MODELS = new Set(["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"]);
@@ -71,9 +80,10 @@ export async function generateJson<T>(opts: {
   const modelsToTry = Array.from(new Set([TEXT_MODEL(), ...FALLBACK_MODELS]));
   let lastErr: unknown;
 
+  const client = await ai();
   for (const model of modelsToTry) {
     try {
-      const res = await ai().models.generateContent({
+      const res = await client.models.generateContent({
         model,
         contents,
         config: {
@@ -103,9 +113,10 @@ export async function generateJson<T>(opts: {
 export async function generateText(opts: { system: string; prompt: string; temperature?: number }) {
   const modelsToTry = Array.from(new Set([TEXT_MODEL(), ...FALLBACK_MODELS]));
   let lastErr: unknown;
+  const client = await ai();
   for (const model of modelsToTry) {
     try {
-      const res = await ai().models.generateContent({
+      const res = await client.models.generateContent({
         model,
         contents: [{ role: "user", parts: [{ text: opts.prompt }] }],
         config: {

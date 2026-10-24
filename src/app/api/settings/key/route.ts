@@ -1,31 +1,28 @@
-import { readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
+import { updateCurrentUserSettings, maskApiKey } from "@/lib/auth";
 import { ok, fail } from "@/lib/http";
 
 export async function POST(req: Request) {
   try {
-    const { apiKey } = (await req.json()) as { apiKey: string };
-    const clean = apiKey?.trim();
-    if (!clean) return ok({ error: "API anahtarı boş olamaz" }, { status: 400 });
-
-    process.env.GEMINI_API_KEY = clean;
-
-    const envPath = path.join(process.cwd(), ".env");
-    let content = "";
-    try {
-      content = await readFile(envPath, "utf8");
-    } catch {
-      content = `DATABASE_URL="file:./dev.db"\n`;
+    const { apiKey, name } = (await req.json()) as { apiKey?: string; name?: string };
+    const cleanKey = apiKey?.trim();
+    if (!cleanKey) {
+      return ok({ error: "API anahtarı boş olamaz" }, { status: 400 });
     }
 
-    if (/^GEMINI_API_KEY=.*$/m.test(content)) {
-      content = content.replace(/^GEMINI_API_KEY=.*$/m, `GEMINI_API_KEY="${clean}"`);
-    } else {
-      content += `\nGEMINI_API_KEY="${clean}"\n`;
-    }
-    await writeFile(envPath, content, "utf8");
+    const updated = await updateCurrentUserSettings({
+      geminiApiKey: cleanKey,
+      name: name?.trim() || undefined,
+    });
 
-    return ok({ saved: true });
+    if (!updated) {
+      return ok({ error: "Oturum bulunamadı. Lütfen önce giriş yapın." }, { status: 401 });
+    }
+
+    return ok({
+      saved: true,
+      maskedKey: maskApiKey(updated.geminiApiKey),
+      name: updated.name,
+    });
   } catch (e) {
     return fail(e);
   }
