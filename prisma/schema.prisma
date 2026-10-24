@@ -1,0 +1,82 @@
+// Russkiy — kişisel Rusça koçu veri modeli
+// SQLite ile başlar; satışa açılırken provider "postgresql" yapılıp User modeli eklenebilir.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// Tek kullanıcılı profil (id = 1). Çok kullanıcıya geçerken userId ile genişletilir.
+model Profile {
+  id             Int      @id @default(1)
+  name           String   @default("Öğrenci")
+  level          String   @default("A1")
+  xp             Int      @default(0)
+  streak         Int      @default(0)
+  lastActiveDate String?
+  dailyGoalXp    Int      @default(50)
+  createdAt      DateTime @default(now())
+}
+
+/// Günlük kazanılan XP (seri / günlük hedef takibi için)
+model DailyActivity {
+  date String @id // YYYY-MM-DD
+  xp   Int    @default(0)
+}
+
+model LessonProgress {
+  lessonId    String    @id
+  status      String    @default("started") // started | completed
+  bestScore   Int       @default(0)
+  attempts    Int       @default(0)
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+}
+
+/// AI tarafından üretilen ders içeriği önbelleği (aynı ders tekrar üretilmez)
+model GeneratedLesson {
+  lessonId  String   @id
+  json      String
+  createdAt DateTime @default(now())
+}
+
+/// Aralıklı tekrar kartı (SM-2)
+model Card {
+  id             Int      @id @default(autoincrement())
+  ru             String   @unique
+  translit       String   @default("")
+  tr             String
+  note           String?
+  sourceLessonId String?
+  ease           Float    @default(2.5)
+  interval       Int      @default(0) // gün
+  reps           Int      @default(0)
+  lapses         Int      @default(0)
+  due            DateTime @default(now())
+  createdAt      DateTime @default(now())
+}
+
+model ChatSession {
+  id         Int           @id @default(autoincrement())
+  scenarioId String
+  title      String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  messages   ChatMessage[]
+}
+
+model ChatMessage {
+  id        Int         @id @default(autoincrement())
+  sessionId Int
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String // user | coach
+  content   String
+  meta      String? // JSON: düzeltmeler, çeviri, yeni kelimeler, öneriler
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId])
+}

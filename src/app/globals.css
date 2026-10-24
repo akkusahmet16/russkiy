@@ -1,26 +1,335 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f2ea;
+  --surface: #ffffff;
+  --surface-muted: #efeae0;
+  --foreground: #141413;
+  --ink-muted: #57534e;
+  --border-ink: #18181b;
+  --accent-red: #d9381e;
+  --accent-blue: #1d4ed8;
+  --accent-gold: #d97706;
+  --accent-green: #15803d;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image: radial-gradient(#d6d0c2 1.15px, transparent 1.15px);
+  background-size: 22px 22px;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  letter-spacing: -0.012em;
+}
+
+.font-display {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  letter-spacing: -0.025em;
+}
+
+.font-mono-code {
+  font-family: var(--font-mono), monospace;
+}
+
+/* ─────────────── TACTILE EDITORIAL DESIGN SYSTEM (NEO-SWISS + PLAYFUL) ─────────────── */
+
+.card {
+  background-color: #ffffff;
+  border: 2px solid #18181b;
+  border-radius: 18px;
+  box-shadow: 0 4px 0 0 #18181b;
+  color: #141413;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-interactive {
+  background-color: #ffffff;
+  border: 2px solid #18181b;
+  border-radius: 18px;
+  box-shadow: 0 4px 0 0 #18181b;
+  color: #141413;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 0 #18181b;
+}
+.card-interactive:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 0 #18181b;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 14px;
+  border: 2px solid #141413;
+  background-color: #d9381e;
+  padding: 0.7rem 1.35rem;
+  font-weight: 700;
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 0 #141413;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+  cursor: pointer;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: #c22f17;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 #141413;
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #141413;
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 14px;
+  border: 2px solid #18181b;
+  background-color: #f7f4ec;
+  padding: 0.65rem 1.15rem;
+  font-weight: 700;
+  color: #141413 !important;
+  box-shadow: 0 3px 0 0 #18181b;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+  cursor: pointer;
+}
+.btn-ghost:hover:not(:disabled) {
+  background-color: #ece6d8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 #18181b;
+}
+.btn-ghost:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #18181b;
+}
+.btn-ghost:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ─────────────── AKILLI RENK HARİTALAMA (EDITORIAL PAPER TEMASI UYUMLULUĞU) ─────────────── */
+/* Tüm alt sayfalardaki eski koyu-tema sınıflarını otomatik olarak yüksek kontrastlı kağıt/mürekkep tonlarına dönüştürür */
+
+.text-white,
+.text-slate-100,
+.text-slate-200 {
+  color: #141413 !important;
+}
+.text-white\/90,
+.text-white\/85,
+.text-white\/80 {
+  color: #292524 !important;
+}
+.text-white\/75,
+.text-white\/70,
+.text-white\/65,
+.text-white\/60 {
+  color: #57534e !important;
+}
+.text-white\/55,
+.text-white\/50,
+.text-white\/45,
+.text-white\/40,
+.text-white\/35 {
+  color: #78716c !important;
+}
+
+/* Vurgu metin renklerini açık zeminde keskin ve okunaklı hale getir */
+.text-sky-300,
+.text-sky-200,
+.text-sky-100,
+.text-sky-300\/90 {
+  color: #1d4ed8 !important;
+}
+.text-rose-400,
+.text-rose-300,
+.text-rose-200,
+.text-rose-100 {
+  color: #be123c !important;
+}
+.text-amber-300,
+.text-amber-200,
+.text-amber-100,
+.text-amber-50,
+.text-amber-200\/90,
+.text-amber-200\/80 {
+  color: #b45309 !important;
+}
+.text-emerald-300,
+.text-emerald-200,
+.text-emerald-100 {
+  color: #15803d !important;
+}
+.text-purple-200 {
+  color: #6d28d9 !important;
+}
+.text-indigo-200 {
+  color: #3730a3 !important;
+}
+
+/* Koyu kutu arka planlarını sıcak kağıt/krem kutulara dönüştür */
+.bg-black\/20,
+.bg-black\/25,
+.bg-black\/30,
+.bg-black\/35,
+.bg-black\/40,
+.bg-white\/5,
+.bg-white\/8,
+.bg-white\/\[0\.04\],
+.bg-white\/\[0\.06\] {
+  background-color: #f6f3eb !important;
+}
+.bg-white\/10,
+.bg-white\/12,
+.bg-white\/15 {
+  background-color: #eae4d7 !important;
+}
+.hover\:bg-white\/10:hover,
+.hover\:bg-white\/15:hover,
+.hover\:bg-white\/20:hover,
+.hover\:bg-white\/\[0\.08\]:hover {
+  background-color: #e2dac9 !important;
+}
+
+/* Kenarlıkları belirgin mimari çizgilere dönüştür */
+.border-white\/5,
+.border-white\/10,
+.border-white\/12,
+.border-white\/15,
+.border-white\/20 {
+  border-color: #d6cfc2 !important;
+}
+.hover\:border-white\/25:hover,
+.hover\:border-white\/30:hover {
+  border-color: #18181b !important;
+}
+
+/* Aktif dolu butonlarda beyaz metni koru */
+.bg-rose-500,
+.bg-sky-500,
+.bg-emerald-500,
+.bg-\[\#141413\] {
+  color: #ffffff !important;
+}
+.bg-rose-500 *,
+.bg-sky-500 *,
+.bg-\[\#141413\] * {
+  color: #ffffff !important;
+}
+
+/* Yüksek okunabilirlikli Editoryal Markdown stili */
+.prose-ru {
+  font-size: 16.5px;
+  line-height: 1.85;
+  color: #1c1917;
+}
+.prose-ru h2 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #141413;
+}
+.prose-ru h2:first-child {
+  margin-top: 0;
+}
+.prose-ru h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1d4ed8;
+}
+.prose-ru p {
+  margin-top: 0.85rem;
+  margin-bottom: 0.85rem;
+  color: #292524;
+}
+.prose-ru strong {
+  font-weight: 800;
+  color: #141413;
+}
+.prose-ru ul {
+  margin: 0.85rem 0;
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  color: #292524;
+}
+.prose-ru ol {
+  margin: 0.85rem 0;
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  color: #292524;
+}
+.prose-ru li {
+  margin: 0.35rem 0;
+}
+.prose-ru table {
+  margin: 1.25rem 0;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 2px solid #18181b;
+  font-size: 15px;
+}
+.prose-ru th {
+  background-color: #efeae0;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 800;
+  color: #141413;
+  border-bottom: 2px solid #18181b;
+}
+.prose-ru td {
+  border-top: 1px solid #d6cfc2;
+  background-color: #ffffff;
+  padding: 0.75rem 1rem;
+  color: #1c1917;
+}
+.prose-ru blockquote {
+  margin: 1rem 0;
+  border-radius: 14px;
+  border: 2px solid #18181b;
+  border-left: 6px solid #d97706;
+  background-color: #fef3c7;
+  padding: 0.85rem 1rem;
+  color: #78350f;
+  font-weight: 600;
+}
+.prose-ru code {
+  border-radius: 8px;
+  border: 1px solid #d6cfc2;
+  background-color: #f5f0e6;
+  padding: 0.15rem 0.45rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #b91c1c;
+}
+.prose-ru em {
+  color: #1d4ed8;
+  font-style: normal;
+  font-weight: 700;
 }
